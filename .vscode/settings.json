@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Yummy",
+            "database": "${workspaceFolder:yummy-backend}/db.sqlite3"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
