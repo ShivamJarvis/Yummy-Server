@@ -2,6 +2,8 @@ from email.policy import default
 from turtle import back
 from django.db import models
 
+from CoreApp.models import User
+
 # Create your models here.
 
 
@@ -80,6 +82,7 @@ class RestrauntMenu(models.Model):
     image = models.ImageField(null=True,blank=True)
     is_bestseller = models.BooleanField(default=False)
     is_healthy = models.BooleanField(default=False)
+    is_customisable = models.BooleanField(default=False)
     is_veg = models.BooleanField(default=False)
     open_time = models.TimeField(null=True,blank=True)
     close_time = models.TimeField(null=True,blank=True)
@@ -90,3 +93,29 @@ class RestrauntMenu(models.Model):
     def __str__(self) -> str:
         return f"{self.item_name}"
     
+    
+class CustomDishHead(models.Model):
+    menu_dish = models.ManyToManyField(RestrauntMenu,related_query_name="dish",related_name="dish")
+    name = models.CharField(max_length=100,null=True,blank=True)
+    max_selection = models.IntegerField(default=1)
+    min_selection = models.IntegerField(default=1)
+    is_required = models.BooleanField(default=False)
+    is_additional_amount_calculated = models.BooleanField(default=False)
+    
+    
+    def __str__(self) -> str:
+        return f"{self.name}"
+    
+    
+class CustomisationOptions(models.Model):
+    custom_dish = models.ForeignKey(CustomDishHead,on_delete=models.CASCADE,null=True,blank=True,related_name="custom_dish_head")
+    name = models.CharField(max_length=100,null=True,blank=True)
+    price = models.FloatField(default=0)
+    
+    
+    def __str__(self) -> str:
+        return f"{self.custom_dish.name} ({self.name})"
+    
+
+class Cart(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="user_cart")
