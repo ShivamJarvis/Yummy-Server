@@ -43,6 +43,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_customer = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    is_head_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_delivery_partner = models.BooleanField(default=False)
     is_restraunt_partner = models.BooleanField(default=False)

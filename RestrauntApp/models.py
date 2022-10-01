@@ -118,4 +118,7 @@ class CustomisationOptions(models.Model):
     
 
 class Cart(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="user_cart")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_user")
+    cart_total = models.FloatField(default=0)
+    restraunt = models.ForeignKey(RestrauntBranch,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_cart")
+    
