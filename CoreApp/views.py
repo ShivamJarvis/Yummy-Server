@@ -90,11 +90,13 @@ class CustomerLoginHandler(APIView):
         username = request.data.get('username')
         otp = request.data.get('otp')
         
-      
+        
         
         user = User.objects.filter(Q(username=username) | Q(email=username) | Q(mobile_no=username)).first()
-    
+       
+        print(abs((user.otp_request_time.replace(tzinfo=None) - datetime.now()).total_seconds()) // 60)
         if user and user.current_otp == otp and abs((user.otp_request_time.replace(tzinfo=None) - datetime.now()).total_seconds()) // 60 <= 3 :
+            
             login(request,user)
             
             user.save()

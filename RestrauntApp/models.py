@@ -43,26 +43,7 @@ class Restraunt(models.Model):
         return self.name
 
 
-class RestrauntBranch(models.Model):
-    restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_branches")
-    outlet_name = models.CharField(max_length=100,null=True,blank=True)
-    location = models.CharField(max_length=100,null=True,blank=True)
-    latitude = models.CharField(max_length=100,null=True,blank=True)
-    longitude = models.CharField(max_length=100,null=True,blank=True)
-    fssai_no = models.CharField(max_length=100,null=True,blank=True)
-    fssai_certificate = models.FileField(null=True,blank=True)
-    rating = models.FloatField(default=4.2)
-    owner_name = models.CharField(max_length=100,null=True,blank=True)
-    address_line_1 = models.CharField(max_length=100,null=True,blank=True)
-    address_line_2 = models.CharField(max_length=100,null=True,blank=True)
-    address_line_3 = models.CharField(max_length=100,null=True,blank=True)
-    state = models.CharField(max_length=100,null=True,blank=True)
-    city = models.CharField(max_length=100,null=True,blank=True)
-    zip_code = models.CharField(max_length=100,null=True,blank=True)
-    joined_at = models.DateField(auto_now_add=True)
-    
-    def __str__(self) -> str:
-        return self.outlet_name
+
     
     
 class RestrauntMenuHead(models.Model):
@@ -91,7 +72,7 @@ class RestrauntMenu(models.Model):
     
     
     def __str__(self) -> str:
-        return f"{self.item_name}"
+        return f"{self.item_name} {self.id}"
     
     
 class CustomDishHead(models.Model):
@@ -104,7 +85,7 @@ class CustomDishHead(models.Model):
     
     
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.name} ({self.id})"
     
     
 class CustomisationOptions(models.Model):
@@ -120,5 +101,20 @@ class CustomisationOptions(models.Model):
 class Cart(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_user")
     cart_total = models.FloatField(default=0)
-    restraunt = models.ForeignKey(RestrauntBranch,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_cart")
+    restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_cart")
+    
+
+class CartItems(models.Model):
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE,null=True,blank=True,related_name="cart")
+    qty = models.IntegerField(default=1)
+    item = models.ForeignKey(RestrauntMenu,on_delete=models.CASCADE,null=True,blank=True,related_name="menu_item")
+    item_total = models.FloatField(default=0)
+    
+    
+class CartItemsCustomisationHead(models.Model):
+    cart_item = models.ForeignKey(CartItems,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_item")
+    customisation_option = models.ForeignKey(CustomisationOptions,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_customisation_option")
+    price = models.FloatField(default=0)
+    
+
     

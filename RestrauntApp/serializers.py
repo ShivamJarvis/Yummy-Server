@@ -1,5 +1,6 @@
+from dataclasses import field
 from rest_framework import serializers
-from RestrauntApp.models import Restraunt,RestrauntBranch,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions
+from RestrauntApp.models import Cart, Restraunt,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions,CartItems
 
 
 class RestrauntSerializer(serializers.ModelSerializer):
@@ -40,4 +41,16 @@ class RestrauntMenuHeadSerializer(serializers.ModelSerializer):
         model = RestrauntMenuHead
         fields = '__all__'
         
+class CartItemSerializer(serializers.ModelSerializer):
    
+    class Meta:
+        model = CartItems
+        exclude = ['cart']
+        depth=1
+        
+class CartSerializer(serializers.ModelSerializer):
+    cart = CartItemSerializer(many=True)
+    class Meta:
+        model = Cart
+        fields = '__all__'
+        
