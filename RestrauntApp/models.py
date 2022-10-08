@@ -111,10 +111,9 @@ class CartItems(models.Model):
     item_total = models.FloatField(default=0)
     
     
-class CartItemsCustomisationHead(models.Model):
+class CartCustomisedItem(models.Model):
     cart_item = models.ForeignKey(CartItems,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_item")
     customisation_option = models.ForeignKey(CustomisationOptions,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_customisation_option")
-    price = models.FloatField(default=0)
     
 
     
