@@ -50,7 +50,9 @@ class CartItemSerializer(serializers.ModelSerializer):
         
 class CartSerializer(serializers.ModelSerializer):
     cart = CartItemSerializer(many=True)
+    restraunt = RestrauntSerializer()
     class Meta:
         model = Cart
         fields = '__all__'
+        
         

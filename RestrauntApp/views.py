@@ -45,6 +45,21 @@ class CustomDishHeadListAPI(ListAPIView):
 class CartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
+    def get(self,request,format=None):
+        user = request.user
+        cart = Cart.objects.filter(user=user).first()
+        if not cart:
+            return Response({
+                        "data":{},
+                        "status":"success",
+                        
+                    },status=status.HTTP_200_OK)
+        cart_data = CartSerializer(cart)
+        return Response({
+                        "data":cart_data.data,
+                        "status":"success",
+                    },status=status.HTTP_200_OK)
+    
     
     def delete(self,request,format=None):
         user = request.user
@@ -274,6 +289,61 @@ class AddCustomisedItemCartAPIView(APIView):
         
         return Response({"message":"Customised Item Added to Cart","status":"success"},status=status.HTTP_200_OK)
     
+    
+class AddCustomisedItemCartFromCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self,request,format=None):
+        
+        
+        cartItemId = request.data.get('cartItemId')
+        customisation_options = request.data.get('customisedOptions')
+        is_repeated = request.data.get('isRepeated')
+       
+        
+        cart_item = CartItems.objects.filter(id=int(cartItemId)).first()
+        
+        if not is_repeated:
+           
+            cart_item = CartItems.objects.create(cart=cart_item.cart,item=cart_item.item,item_total=cart_item.item.item_price)
+            cart_item.save()
+
+            for option in customisation_options:
+                for custom_item in option['custom_dish_head']:
+                    try:
+                        
+                        if custom_item['select'] and custom_item['select'] == True:
+                            customisation_option = CustomisationOptions.objects.filter(id=custom_item['id']).first()
+                            new_cart_custom_item = CartCustomisedItem.objects.create(cart_item=cart_item,customisation_option=customisation_option)
+                            new_cart_custom_item.save()
+                    except:
+                        pass
+                        
+        elif is_repeated and cart_item:
+            
+            cart_item.qty = int(cart_item.qty) + 1
+            cart_item.item_total = float(int(cart_item.qty) * float(cart_item.item.item_price))
+            cart_item.save()
+            
+        
+       
+        item_price_total = 0
+        for j in cart_item.cart_item.all():
+            item_price_total += float(float(j.customisation_option.price) * int(cart_item.qty))
+        cart_item.item_total = float(item_price_total) + float(cart_item.item_total)
+        cart_item.save()
+            
+        all_cart_items = CartItems.objects.filter(cart=cart_item.cart).all()
+       
+        cart_total = 0
+        for i in all_cart_items:
+            cart_total += float(i.item_total)
+            
+        cart_item.cart.cart_total = cart_total
+        
+        cart_item.cart.save()
+        
+        return Response({"message":"Customised Item Added to Cart","status":"success"},status=status.HTTP_200_OK)
+    
 class RemoveCustomisedItemCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def post(self,request,format=None):
@@ -322,6 +392,47 @@ class RemoveCustomisedItemCartAPIView(APIView):
             
         cart_total = 0
         for i in cart.cart.all():
+            cart_total += float(i.item_total)
+            
+        cart.cart_total = cart_total
+        
+        cart.save()
+        
+        return Response({"message":"Item Removed to Cart","status":"success"},status=status.HTTP_200_OK)
+    
+
+class RemoveCustomisedItemCartFromCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self,request,format=None):
+        
+        
+        cartItemId = request.data.get('cartItemId')
+        user = request.user
+        
+        cartItemId = request.data.get('cartItemId')
+        cart_item = CartItems.objects.filter(id=int(cartItemId)).first()
+        
+        cart = cart_item.cart
+        
+        all_cart_items = CartItems.objects.filter(cart=cart).all()
+   
+                
+        if cart_item.qty > 1:
+            cart_item.qty = int(cart_item.qty) - 1
+            item_total = float(int(cart_item.qty) * float(cart_item.item.item_price))
+            
+            item_price_total = 0
+            for j in cart_item.cart_item.all():
+                item_price_total += float(float(j.customisation_option.price) * int(cart_item.qty))
+            
+            cart_item.item_total = float(item_price_total) + float(item_total)
+            cart_item.save()
+        else:
+            cart_item.delete()
+     
+            
+        cart_total = 0
+        for i in all_cart_items:
             cart_total += float(i.item_total)
             
         cart.cart_total = cart_total

@@ -14,5 +14,7 @@ urlpatterns = [
     path('cart/remove-customised-item/',views.RemoveCustomisedItemCartAPIView.as_view()),
     path('cart/item/',views.CartItemDetailAPI.as_view()),
     path('cart/add-customised-item/',views.AddCustomisedItemCartAPIView.as_view()),
+    path('cart/add-customised-item-cart/',views.AddCustomisedItemCartFromCartAPIView.as_view()),
+    path('cart/remove-customised-item-cart/',views.RemoveCustomisedItemCartFromCartAPIView.as_view()),
     
 ]
