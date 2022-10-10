@@ -1,5 +1,4 @@
 from email.policy import default
-from turtle import back
 from django.db import models
 
 from CoreApp.models import User
@@ -69,6 +68,7 @@ class RestrauntMenu(models.Model):
     close_time = models.TimeField(null=True,blank=True)
     rating = models.FloatField(default=4.2)
     total_sell = models.IntegerField(default=0)
+    preparation_time = models.IntegerField(default=0)
     
     
     def __str__(self) -> str:

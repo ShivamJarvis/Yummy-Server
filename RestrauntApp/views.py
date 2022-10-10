@@ -381,8 +381,8 @@ class RemoveCustomisedItemCartAPIView(APIView):
             item_total = float(int(cart_item.qty) * float(item.item_price))
             
             item_price_total = 0
-            for j in i.cart_item.all():
-                item_price_total += float(float(j.customisation_option.price) * int(i.qty))
+            for j in cart_item.cart_item.all():
+                item_price_total += float(float(j.customisation_option.price) * int(cart_item.qty))
             
             cart_item.item_total = float(item_price_total) + float(item_total)
             cart_item.save()

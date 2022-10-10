@@ -3,13 +3,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import permissions,status
 from rest_framework.views import APIView
-from CoreApp.models import Customer, User
+from rest_framework.generics import ListAPIView
+from CoreApp.models import AddressDetail, Customer, User
 from django.contrib.auth import login
 import math
 import random
 from datetime import datetime
 from django.db.models import Q
-from CoreApp.serializers import CustomerSerializer
+from CoreApp.serializers import AddressDetailSerializer, CustomerSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -141,3 +143,10 @@ class CustomerDetailsAPI(APIView):
             return Response({"message":"Success","data":customer_serializer.data},status=status.HTTP_200_OK)
         
         return Response(customer_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class AddressDetailAPI(ListAPIView):
+    queryset = AddressDetail.objects.all()
+    serializer_class = AddressDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user']

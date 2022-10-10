@@ -1,5 +1,5 @@
 from django.contrib import admin
-from CoreApp.models import Customer, User
+from CoreApp.models import Customer, User, AddressDetail
 # Register your models here.
 
 
@@ -11,3 +11,4 @@ class UserDetails(admin.ModelAdmin):
 
 admin.site.register(User,UserDetails)
 admin.site.register(Customer)
+admin.site.register(AddressDetail)

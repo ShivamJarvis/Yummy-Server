@@ -65,4 +65,27 @@ class Customer(models.Model):
     total_cancellation_count = models.IntegerField(default=0)
     is_cod_applicable = models.BooleanField(default=True)
     
+ADDRESS_OF = (
+("Home","Home"),
+("Work","Work"),
+("Friends & Family","Friends & Family"),
+("Other","Other"),
+)
+class AddressDetail(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="addresses")
+    address_line_1 = models.CharField(max_length = 100, null=True,blank=True)
+    address_line_2 = models.CharField(max_length = 100, null=True,blank=True)
+    address_line_3 = models.CharField(max_length = 100, null=True,blank=True)
+    zip_code = models.CharField(max_length = 10, null=True,blank=True)
+    landmark = models.CharField(max_length = 60, null=True,blank=True)
+    address_type = models.CharField(max_length=50,null=True,blank=True,choices=ADDRESS_OF)
+    reciever_name = models.CharField(max_length=60,null=True,blank=True)
+    reciever_phone_no = models.CharField(max_length=15,null=True,blank=True)
+    longitude = models.CharField(max_length=20,null=True,blank=True)
+    latitude = models.CharField(max_length=20,null=True,blank=True)
+    other_name = models.CharField(max_length=60,null=True,blank=True)
+    
+    def __str__(self) -> str:
+        return f"{self.address_type} address of {self.user.username}"
+    
     
