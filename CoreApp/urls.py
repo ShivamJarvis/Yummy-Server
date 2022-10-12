@@ -6,4 +6,5 @@ urlpatterns = [
     path('login-cutomer-otp/',views.CustomerLoginHandler.as_view()),
     path('cutomer-details/',views.CustomerDetailsAPI.as_view()),
     path('address-details/',views.AddressDetailAPI.as_view()),
+    path('create-address/',views.AddressCreateAPIView.as_view()),
 ]

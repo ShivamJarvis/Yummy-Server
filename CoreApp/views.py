@@ -148,5 +148,95 @@ class AddressDetailAPI(ListAPIView):
     queryset = AddressDetail.objects.all()
     serializer_class = AddressDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user']
+   
+    
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            user=self.request.user
+        )
+    
+class AddressCreateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self,request,format=None):
+        user = request.user
+        data = request.data
+        try:
+            address_line_1 = data['address_line_1']
+        except:
+            address_line_1 = ""
+
+        try:
+            address_line_2 = data['address_line_2']
+        except:
+            address_line_2 = ""
+
+        
+        try:
+            zip_code = data['zip_code']
+        except:
+            zip_code = ""
+
+        try:
+            landmark = data['landmark']
+        except:
+            landmark = ""
+
+        try:
+            address_type = data['address_type']
+        except:
+            address_type = ""
+
+        try:
+            reciever_name = data['reciever_name']
+        except:
+            reciever_name = ""
+
+        try:
+            reciever_phone_no = data['reciever_phone_no']
+        except:
+            reciever_phone_no = ""
+
+        try:
+            longitude = data['longitude']
+        except:
+            longitude = ""
+
+        try:
+            latitude = data['latitude']
+        except:
+            latitude = ""
+
+        try:
+            other_name = data['other_name']
+        except:
+            other_name = ""
+
+        try:
+            instructions = data['instructions']
+        except:
+            instructions = ""
+        address = AddressDetail.objects.create(
+            user = user,
+            address_line_1 = address_line_1,
+            address_line_2 = address_line_2,
+            zip_code = zip_code,
+            landmark = landmark,
+            address_type = address_type,
+            reciever_name = reciever_name,
+            reciever_phone_no = reciever_phone_no,
+            longitude = longitude,
+            latitude = latitude,
+            other_name = other_name,
+            instructions = instructions,
+
+            )
+        
+        address.save()
+       
+        address_data = AddressDetailSerializer(address)
+        return Response({
+                        "data":address_data.data,
+                        "status":"success",
+                    },status=status.HTTP_200_OK)
+    

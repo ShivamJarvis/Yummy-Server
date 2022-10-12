@@ -84,6 +84,7 @@ class AddressDetail(models.Model):
     longitude = models.CharField(max_length=20,null=True,blank=True)
     latitude = models.CharField(max_length=20,null=True,blank=True)
     other_name = models.CharField(max_length=60,null=True,blank=True)
+    instructions = models.TextField(null=True,blank=True)
     
     def __str__(self) -> str:
         return f"{self.address_type} address of {self.user.username}"
