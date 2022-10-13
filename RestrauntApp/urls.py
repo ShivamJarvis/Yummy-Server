@@ -4,6 +4,9 @@ from RestrauntApp import views
 urlpatterns = [
     
     path('',views.RestrauntsListAPI.as_view()),
+    path('sections/',views.RestrauntSectionListAPI.as_view()),
+    path('banner/',views.BannerListAPI.as_view()),
+    path('cuisine/',views.CuisineListAPI.as_view()),
     path('<pk>',views.RestrauntsDetailAPI.as_view()),
     path('menu-heads/',views.RestrauntMenuHeadListAPI.as_view()),
     path('custom-dish-head/',views.CustomDishHeadListAPI.as_view()),

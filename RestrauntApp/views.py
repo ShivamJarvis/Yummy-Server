@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView,RetrieveAPIView,DestroyAPIView
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from RestrauntApp.models import Cart, CartCustomisedItem, CartItems, CustomDishHead, CustomisationOptions, Restraunt, RestrauntMenu, RestrauntMenuHead
-from RestrauntApp.serializers import CartItemSerializer, CartSerializer, CustomDishHeadSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from RestrauntApp.models import Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
+from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineSerializer, CustomDishHeadSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
 # Create your views here.
 
 class RestrauntsListAPI(ListAPIView):
@@ -21,6 +21,23 @@ class RestrauntsListAPI(ListAPIView):
 class RestrauntsDetailAPI(RetrieveAPIView):
     queryset = Restraunt.objects.all()
     serializer_class = RestrauntSerializer
+    permission_classes = [permissions.AllowAny]
+    
+
+class RestrauntSectionListAPI(ListAPIView):
+    queryset = RestrauntSection.objects.all()
+    serializer_class = RestrauntSectionSerializer
+    permission_classes = [permissions.AllowAny]
+    
+
+class BannerListAPI(ListAPIView):
+    queryset = Banner.objects.all()
+    serializer_class = BannerSerializer
+    permission_classes = [permissions.AllowAny]
+    
+class CuisineListAPI(ListAPIView):
+    queryset = Cuisine.objects.all()
+    serializer_class = CuisineSerializer
     permission_classes = [permissions.AllowAny]
     
 

@@ -13,10 +13,18 @@ class Category(models.Model):
     def __str__(self) -> str:
         return self.name
     
+class Cuisine(models.Model):
+    name = models.CharField(max_length=50,null=True,blank=True)
+    image = models.ImageField(null=True,blank=True)
+    
+    def __str__(self):
+        return self.name
+    
 
 class Restraunt(models.Model):
     name = models.CharField(max_length=100,null=True,blank=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="restraunt_category")
+    cuisine = models.ManyToManyField(Cuisine,blank=True,related_name="restraunt_cuisine")
     card_image = models.ImageField(null=True,blank=True)
     head_image = models.ImageField(null=True,blank=True)
     location = models.CharField(max_length=100,null=True,blank=True)
@@ -42,8 +50,6 @@ class Restraunt(models.Model):
         return self.name
 
 
-
-    
     
 class RestrauntMenuHead(models.Model):
     restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_menu")
@@ -115,5 +121,14 @@ class CartCustomisedItem(models.Model):
     cart_item = models.ForeignKey(CartItems,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_item")
     customisation_option = models.ForeignKey(CustomisationOptions,on_delete=models.CASCADE,null=True,blank=True,related_name="cart_customisation_option")
     
-
+class RestrauntSection(models.Model):
+    name = models.CharField(max_length=50,null=True,blank=True)
+    restraunts = models.ManyToManyField(Restraunt,blank=True,related_name="section_restraunt")
     
+    def __str__(self) -> str:
+        return f'{self.name}'
+    
+class Banner(models.Model):
+    name=models.CharField(max_length=50,null=True,blank=True)
+    imageUrl = models.ImageField(null=True,blank=True)
+    restraunt = models.ManyToManyField(Restraunt,blank=True,related_name="special_restraunt")

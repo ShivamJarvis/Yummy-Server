@@ -1,6 +1,6 @@
 from dataclasses import field
 from rest_framework import serializers
-from RestrauntApp.models import Cart, CartCustomisedItem, Restraunt,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions,CartItems
+from RestrauntApp.models import Banner, Cart, CartCustomisedItem, Cuisine, Restraunt,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions,CartItems, RestrauntSection
 
 
 class RestrauntSerializer(serializers.ModelSerializer):
@@ -60,5 +60,25 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = '__all__'
+        
+class RestrauntSectionSerializer(serializers.ModelSerializer):
+    restraunts = RestrauntSerializer(many=True)
+    class Meta:
+        model = RestrauntSection
+        fields = '__all__'
+        
+        
+class BannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Banner
+        fields = '__all__'
+        
+        
+        
+class CuisineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cuisine
+        fields = '__all__'
+        
         
         
