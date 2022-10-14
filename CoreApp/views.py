@@ -111,8 +111,7 @@ class CustomerLoginHandler(APIView):
             
         return Response({"message":"Wrong OTP or Seems OTP Expired"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
-        
+     
 
 class CustomerDetailsAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]

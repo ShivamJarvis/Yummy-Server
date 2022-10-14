@@ -45,6 +45,7 @@ class Restraunt(models.Model):
     closing_timing = models.TimeField(null=True,blank=True)
     opening_timing = models.TimeField(null=True,blank=True)
     maximum_delivery_radius = models.IntegerField(default=3)
+    cuisine_description = models.TextField(null=True,blank=True)
     
     def __str__(self) -> str:
         return self.name
@@ -132,3 +133,17 @@ class Banner(models.Model):
     name=models.CharField(max_length=50,null=True,blank=True)
     imageUrl = models.ImageField(null=True,blank=True)
     restraunt = models.ManyToManyField(Restraunt,blank=True,related_name="special_restraunt")
+    
+    
+class DiscountCoupon(models.Model):
+    code = models.CharField(max_length = 15,null=True,blank=True)
+    discount_percentage = models.IntegerField(default = 0)
+    description = models.TextField(null=True,blank=True)
+    minimum_cart_amount = models.IntegerField(default=0)
+    discount_amount_limit = models.IntegerField(default=0)
+    limit_per_user = models.IntegerField(default=1)
+    offer_by = models.ForeignKey(Restraunt,on_delete=models.CASCADE,null=True,blank=True,related_name="coupon_offer_by")
+    
+class AppliedCoupon(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="coupon_used_by")
+    coupon = models.ForeignKey(DiscountCoupon,on_delete=models.CASCADE,related_name="coupon")

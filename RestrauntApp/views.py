@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView,RetrieveAPIView,DestroyAPIView
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from RestrauntApp.models import Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
-from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineSerializer, CustomDishHeadSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, DiscountCoupon, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
+from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
 # Create your views here.
 
 class RestrauntsListAPI(ListAPIView):
@@ -39,7 +39,12 @@ class CuisineListAPI(ListAPIView):
     queryset = Cuisine.objects.all()
     serializer_class = CuisineSerializer
     permission_classes = [permissions.AllowAny]
-    
+    filterset_fields = ['id']
+class CuisineDetailListAPI(ListAPIView):
+    queryset = Cuisine.objects.all()
+    serializer_class = CuisineDetailSerializer
+    permission_classes = [permissions.AllowAny]
+    filterset_fields = ['id']
 
 
 
@@ -459,3 +464,24 @@ class RemoveCustomisedItemCartFromCartAPIView(APIView):
         return Response({"message":"Item Removed to Cart","status":"success"},status=status.HTTP_200_OK)
     
     
+class DiscountCouponAPI(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request, format=None):
+        user = request.user
+        applied_coupon = AppliedCoupon.objects.filter(user=user).all()
+        discount_coupon = DiscountCoupon.objects.all()
+        
+        valid_coupon = []
+        for i in discount_coupon:
+            use_coupon_count = len(applied_coupon.filter(coupon=i).all())
+            print(use_coupon_count)
+            if i.limit_per_user > use_coupon_count:
+                coupon_data = DiscountSouponSerializer(i)
+                valid_coupon.append(coupon_data.data)
+
+        
+        return Response({"data":valid_coupon,"status":"success"},status=status.HTTP_200_OK)
+                
+            
+        
