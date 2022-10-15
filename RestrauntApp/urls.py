@@ -22,4 +22,7 @@ urlpatterns = [
     path('cart/add-customised-item-cart/',views.AddCustomisedItemCartFromCartAPIView.as_view()),
     path('cart/remove-customised-item-cart/',views.RemoveCustomisedItemCartFromCartAPIView.as_view()),
     
+    path('order/',views.OrderAPI.as_view()),
+    path('order-detail/',views.OrderDetailListAPI.as_view()),
+    
 ]

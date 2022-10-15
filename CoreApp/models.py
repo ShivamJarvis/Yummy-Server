@@ -64,6 +64,7 @@ class Customer(models.Model):
     total_orders_count = models.IntegerField(default=0)
     total_cancellation_count = models.IntegerField(default=0)
     is_cod_applicable = models.BooleanField(default=True)
+
     
 ADDRESS_OF = (
 ("Home","Home"),
@@ -90,3 +91,8 @@ class AddressDetail(models.Model):
         return f"{self.address_type} address of {self.user.username}"
     
     
+class DeliveryPartner(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="delivery_partner")
+    total_orders_count = models.IntegerField(default=0)
+    total_cancellation_count = models.IntegerField(default=0)
+    is_cod_applicable = models.BooleanField(default=True)

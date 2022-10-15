@@ -1,7 +1,12 @@
 from email.policy import default
+import json
 from django.db import models
 
-from CoreApp.models import User
+from CoreApp.models import DeliveryPartner, User
+import random
+import string
+from asgiref.sync import async_to_sync
+from channels.consumer import get_channel_layer
 
 # Create your models here.
 
@@ -48,7 +53,7 @@ class Restraunt(models.Model):
     cuisine_description = models.TextField(null=True,blank=True)
     
     def __str__(self) -> str:
-        return self.name
+        return f"{self.id}. {self.name}"
 
 
     
@@ -147,3 +152,73 @@ class DiscountCoupon(models.Model):
 class AppliedCoupon(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="coupon_used_by")
     coupon = models.ForeignKey(DiscountCoupon,on_delete=models.CASCADE,related_name="coupon")
+    
+
+def generateOrderId():
+    generated_id = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(20))
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+    
+    
+ORDER_STATUS = (
+    ('Order Recieved','Order Recieved'),
+    ('Order Confirmed','Order Confirmed'),
+    ('Preparing Order','Preparing Order'),
+    ('Delivery Partner at Restraunt','Delivery Partner at Restraunt'),
+    ('Order Picked Up','Order Picked Up'),
+    ('Order Delivery','Order Delivery'),
+)
+    
+class Order(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="order_customer")
+    restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,null=True,blank=True,related_name="restraunt_order")
+    delivery_partner = models.ForeignKey(DeliveryPartner,on_delete=models.CASCADE,null=True,blank=True,related_name="delivery_partner")
+    order_id = models.CharField(max_length=30,default=generateOrderId)
+    order_net_amount = models.FloatField(default=0)
+    order_tax_amount = models.FloatField(default=0)
+    order_tip_amount = models.FloatField(default=0)
+    order_delivery_amount = models.FloatField(default=0)
+    order_discount_amount = models.FloatField(default=0)
+    restraunt_latitude = models.CharField(max_length=100,null=True,blank=True)
+    restraunt_longitude = models.CharField(max_length=100,null=True,blank=True)
+    customer_latitude = models.CharField(max_length=100,null=True,blank=True)
+    customer_longitude = models.CharField(max_length=100,null=True,blank=True)
+    is_cod = models.BooleanField(default=False)
+    item_count = models.IntegerField(default=0)
+    delivery_distance = models.FloatField(default=0)
+    net_delivery_time = models.FloatField(default=0)
+    order_status = models.CharField(max_length=50,choices=ORDER_STATUS,default="Order Recieved")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs ):
+        
+       
+            
+        channel_layer = get_channel_layer()
+        data = {}
+        data['order_id'] = self.order_id
+        data['status'] = self.order_status
+        # data['delivery_partner'] = self.delivery_partner
+    
+        async_to_sync(channel_layer.group_send)(
+            'id_%s' % self.order_id ,{
+                'type':'order_status',
+                'value':json.dumps(data)
+            }
+        )
+            
+            
+        
+        return super().save()
+    
+    def __str__(self) -> str:
+        return self.order_id
+
+class OrderItem(models.Model):
+    item = models.ForeignKey(RestrauntMenu,on_delete=models.SET_NULL,null=True,related_name="order_item")
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,null=True,related_name="order")
+    item_price = models.FloatField(default=0)
+    qty = models.IntegerField(default=0)
+    additional_items = models.TextField(null=True,blank=True)
+    def __str__(self) -> str:
+        return self.order.order_id
+    

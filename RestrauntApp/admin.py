@@ -1,5 +1,5 @@
 from django.contrib import admin
-from RestrauntApp.models import CustomDishHead, CustomisationOptions, DiscountCoupon, Restraunt,RestrauntMenu,RestrauntMenuHead,Category,Cart,CartItems,CartCustomisedItem,RestrauntSection,Banner,Cuisine,AppliedCoupon
+from RestrauntApp.models import CustomDishHead, CustomisationOptions, DiscountCoupon, Order, OrderItem, Restraunt,RestrauntMenu,RestrauntMenuHead,Category,Cart,CartItems,CartCustomisedItem,RestrauntSection,Banner,Cuisine,AppliedCoupon
 
 
 # Register your models here.
@@ -25,3 +25,5 @@ admin.site.register(Banner)
 admin.site.register(Cuisine)
 admin.site.register(DiscountCoupon)
 admin.site.register(AppliedCoupon)
+admin.site.register(Order)
+admin.site.register(OrderItem)

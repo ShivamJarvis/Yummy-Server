@@ -1,12 +1,13 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView,RetrieveAPIView,DestroyAPIView
+from rest_framework.generics import ListAPIView,RetrieveAPIView
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, DiscountCoupon, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
-from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, DiscountCoupon, Order, OrderItem, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
+from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, OrderSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 # Create your views here.
 
 class RestrauntsListAPI(ListAPIView):
@@ -475,7 +476,6 @@ class DiscountCouponAPI(APIView):
         valid_coupon = []
         for i in discount_coupon:
             use_coupon_count = len(applied_coupon.filter(coupon=i).all())
-            print(use_coupon_count)
             if i.limit_per_user > use_coupon_count:
                 coupon_data = DiscountSouponSerializer(i)
                 valid_coupon.append(coupon_data.data)
@@ -485,3 +485,77 @@ class DiscountCouponAPI(APIView):
                 
             
         
+    
+class OrderAPI(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request, format=None):
+        user = request.user
+        restraunt = Restraunt.objects.filter(id=int(request.data.get('restraunt_id'))).first()
+        order_net_amount = request.data.get('order_net_amount')
+        order_tax_amount = request.data.get('order_tax_amount')
+        order_tip_amount = request.data.get('order_tip_amount')
+        order_delivery_amount = request.data.get('order_delivery_amount')
+        order_discount_amount = request.data.get('order_discount_amount')
+        restraunt_latitude = request.data.get('restraunt_latitude')
+        restraunt_longitude = request.data.get('restraunt_longitude')
+        customer_latitude = request.data.get('customer_latitude')
+        customer_longitude = request.data.get('customer_longitude')
+        is_cod = request.data.get('is_cod')
+        item_count = request.data.get('item_count')
+        delivery_distance = request.data.get('delivery_distance')
+        
+        cart = Cart.objects.filter(user=user).filter(restraunt=restraunt).first()
+        
+        
+        
+        new_order = Order.objects.create(
+            user=user,
+            restraunt=restraunt,
+            order_net_amount=order_net_amount,
+            order_tax_amount=order_tax_amount,
+            order_tip_amount=order_tip_amount,
+            order_delivery_amount=order_delivery_amount,
+            order_discount_amount=order_discount_amount,
+            restraunt_latitude=restraunt_latitude,
+            restraunt_longitude=restraunt_longitude,
+            customer_latitude=customer_latitude,
+            customer_longitude=customer_longitude,
+            is_cod=is_cod,
+            item_count=item_count,
+            delivery_distance=delivery_distance,
+        )
+        
+        new_order.save()
+        
+        for i in cart.cart.all():
+            item = i.item
+            additional_items = ""
+            for additional in i.cart_item.all():
+                additional_items += f"{additional.customisation_option.name}, "
+                
+            new_order_item = OrderItem.objects.create(
+                order=new_order,
+                item=item,
+                item_price=item.item_price,
+                additional_items=additional_items,
+                qty = i.qty
+            )
+            new_order_item.save()
+            
+        layer = get_channel_layer()
+        async_to_sync(layer.group_send)(f'id_{restraunt.id}', {
+        'type': 'new_order',
+        'new_order_id': new_order.order_id
+        })
+        
+        cart.delete()
+        
+        return Response({"order_id":new_order.order_id,"message":"Order Place Successfully","status":"success"},status=status.HTTP_200_OK)
+                
+            
+class OrderDetailListAPI(ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ['order_id']
