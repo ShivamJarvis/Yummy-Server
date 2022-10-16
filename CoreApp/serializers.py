@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from CoreApp.models import User,Customer,AddressDetail
+from CoreApp.models import DeliveryPartner, User,Customer,AddressDetail
 
 
 
@@ -23,6 +23,14 @@ class CustomerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     class Meta:
         model = Customer
+        fields = '__all__'
+        
+   
+
+class DeliveryPartnerSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = DeliveryPartner
         fields = '__all__'
         
    

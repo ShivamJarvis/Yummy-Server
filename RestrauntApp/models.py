@@ -7,6 +7,7 @@ import random
 import string
 from asgiref.sync import async_to_sync
 from channels.consumer import get_channel_layer
+from CoreApp.serializers import DeliveryPartnerSerializer
 
 # Create your models here.
 
@@ -165,7 +166,7 @@ ORDER_STATUS = (
     ('Preparing Order','Preparing Order'),
     ('Delivery Partner at Restraunt','Delivery Partner at Restraunt'),
     ('Order Picked Up','Order Picked Up'),
-    ('Order Delivery','Order Delivery'),
+    ('Delivered','Delivered'),
 )
     
 class Order(models.Model):
@@ -178,26 +179,42 @@ class Order(models.Model):
     order_tip_amount = models.FloatField(default=0)
     order_delivery_amount = models.FloatField(default=0)
     order_discount_amount = models.FloatField(default=0)
-    restraunt_latitude = models.CharField(max_length=100,null=True,blank=True)
-    restraunt_longitude = models.CharField(max_length=100,null=True,blank=True)
-    customer_latitude = models.CharField(max_length=100,null=True,blank=True)
-    customer_longitude = models.CharField(max_length=100,null=True,blank=True)
+    restraunt_latitude = models.FloatField(default=0)
+    restraunt_longitude = models.FloatField(default=0)
+    dp_latitude = models.FloatField(default=0)
+    dp_longitude = models.FloatField(default=0)
+    customer_latitude = models.FloatField(default=0)
+    customer_longitude = models.FloatField(default=0)
     is_cod = models.BooleanField(default=False)
     item_count = models.IntegerField(default=0)
     delivery_distance = models.FloatField(default=0)
     net_delivery_time = models.FloatField(default=0)
     order_status = models.CharField(max_length=50,choices=ORDER_STATUS,default="Order Recieved")
+    customer_address = models.TextField(null=True,blank=True)
+    customer_address_type = models.CharField(max_length=50,null=True,blank=True)
+    order_date = models.DateField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def save(self, *args, **kwargs ):
         
-       
-            
         channel_layer = get_channel_layer()
         data = {}
         data['order_id'] = self.order_id
         data['status'] = self.order_status
-        # data['delivery_partner'] = self.delivery_partner
+        
+        
+        try:
+            if self.delivery_partner:    
+                delivery_partner_data = DeliveryPartnerSerializer(self.delivery_partner)
+                delivery_partner_data = delivery_partner_data.data
+            else:
+                delivery_partner_data = {}
+        except:
+            delivery_partner_data = {}
+        
+        data['delivery_partner'] = delivery_partner_data
+        data['dp_latitude'] = self.dp_latitude
+        data['dp_longitude'] = self.dp_longitude
     
         async_to_sync(channel_layer.group_send)(
             'id_%s' % self.order_id ,{

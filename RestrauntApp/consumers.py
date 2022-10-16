@@ -41,12 +41,7 @@ class OrderConsumer(WebsocketConsumer):
         pass
 
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        content = text_data_json['content']
-        print(content)
-        self.send(text_data=json.dumps({
-            'order_id': content
-        }))
+        pass
         
     def order_status(self, event):
         data = event

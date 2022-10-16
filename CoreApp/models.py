@@ -96,3 +96,4 @@ class DeliveryPartner(models.Model):
     total_orders_count = models.IntegerField(default=0)
     total_cancellation_count = models.IntegerField(default=0)
     is_cod_applicable = models.BooleanField(default=True)
+    description = models.TextField(null=True,blank=True)

@@ -5,9 +5,10 @@ from rest_framework.generics import ListAPIView,RetrieveAPIView
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, DiscountCoupon, Order, OrderItem, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
-from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, OrderSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, OrderItemSerializer, OrderSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from CoreApp.models import AddressDetail
 # Create your views here.
 
 class RestrauntsListAPI(ListAPIView):
@@ -504,6 +505,7 @@ class OrderAPI(APIView):
         is_cod = request.data.get('is_cod')
         item_count = request.data.get('item_count')
         delivery_distance = request.data.get('delivery_distance')
+        customer_address = AddressDetail.objects.filter(id=int(request.data.get('customer_address'))).first()  
         
         cart = Cart.objects.filter(user=user).filter(restraunt=restraunt).first()
         
@@ -524,6 +526,8 @@ class OrderAPI(APIView):
             is_cod=is_cod,
             item_count=item_count,
             delivery_distance=delivery_distance,
+            customer_address = f'{customer_address.address_line_1}, {customer_address.address_line_2}, {customer_address.landmark}, Zip Code - {customer_address.zip_code}',
+            customer_address_type = customer_address.address_type
         )
         
         new_order.save()
@@ -559,3 +563,8 @@ class OrderDetailListAPI(ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['order_id']
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            user=self.request.user
+        )
+            
