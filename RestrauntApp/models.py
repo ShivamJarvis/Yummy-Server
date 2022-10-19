@@ -26,6 +26,11 @@ class Cuisine(models.Model):
     def __str__(self):
         return self.name
     
+RESTRAUNT_SERVES = (
+    ('Veg','Veg'),
+    ('Non-Veg','Non-Veg'),
+    ('Both','Both'),
+)
 
 class Restraunt(models.Model):
     name = models.CharField(max_length=100,null=True,blank=True)
@@ -52,6 +57,10 @@ class Restraunt(models.Model):
     opening_timing = models.TimeField(null=True,blank=True)
     maximum_delivery_radius = models.IntegerField(default=3)
     cuisine_description = models.TextField(null=True,blank=True)
+    cost_of_two = models.IntegerField(default=200)
+    is_exclusive = models.BooleanField(default=False)
+    is_new = models.BooleanField(default=True)
+    food_type = models.CharField(max_length=40,choices=RESTRAUNT_SERVES,default="Veg")
     
     def __str__(self) -> str:
         return f"{self.id}. {self.name}"

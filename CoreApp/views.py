@@ -77,9 +77,7 @@ class CustomerUserHandler(APIView):
         new_customer.save()
         
         new_user.save()
-        
-        
-        
+
         return Response({
                         "message":"OTP Send",
                         "otp":otp,
