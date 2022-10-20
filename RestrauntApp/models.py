@@ -248,3 +248,14 @@ class OrderItem(models.Model):
     def __str__(self) -> str:
         return self.order.order_id
     
+class CustomerSearches(models.Model):
+    restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,related_name="recent_search_restraunt")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="recent_search_restraunt")
+    created_at = models.DateField(auto_now_add=True)
+    
+    
+class CustomerFavouritesRestraunt(models.Model):
+    restraunt = models.ForeignKey(Restraunt,on_delete=models.CASCADE,related_name="favourite_restraunt")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="user_favourite_restraunt")
+    created_at = models.DateField(auto_now_add=True)
+    

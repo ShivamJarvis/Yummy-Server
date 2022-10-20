@@ -24,5 +24,9 @@ urlpatterns = [
     
     path('order/',views.OrderAPI.as_view()),
     path('order-detail/',views.OrderDetailListAPI.as_view()),
+    path('restraunt-search/',views.RestrauntsSearchListAPI.as_view()),
+    path('customer-search/',views.CustomerSearchesAPI.as_view()),
+    path('recent-search/',views.CustomerSearchesListAPI.as_view()),
+    path('favourite-restraunts/',views.CustomerFavouritesRestrauntListAPI.as_view()),
     
 ]

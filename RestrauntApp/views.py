@@ -4,8 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView,RetrieveAPIView
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomisationOptions, DiscountCoupon, Order, OrderItem, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
-from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, DiscountSouponSerializer, OrderItemSerializer, OrderSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
+from rest_framework import filters
+from RestrauntApp.models import AppliedCoupon, Banner, Cart, CartCustomisedItem, CartItems, Cuisine, CustomDishHead, CustomerFavouritesRestraunt, CustomerSearches, CustomisationOptions, DiscountCoupon, Order, OrderItem, Restraunt, RestrauntMenu, RestrauntMenuHead, RestrauntSection
+from RestrauntApp.serializers import BannerSerializer, CartItemSerializer, CartSerializer, CuisineDetailSerializer, CuisineSerializer, CustomDishHeadSerializer, CustomerFavouritesRestrauntSerializer, CustomerSearchesSerializer, DiscountSouponSerializer, OrderItemSerializer, OrderSerializer, RestrauntSectionSerializer, RestrauntSerializer,RestrauntMenuHeadSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from CoreApp.models import AddressDetail
@@ -19,6 +20,13 @@ class RestrauntsListAPI(ListAPIView):
     filterset_fields = {
         'rating': ['gte', 'lte']
     }
+
+class RestrauntsSearchListAPI(ListAPIView):
+    queryset = Restraunt.objects.all()
+    serializer_class = RestrauntSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'restraunt_menu__name','restraunt_menu__menu__item_name']
 
 class RestrauntsDetailAPI(RetrieveAPIView):
     queryset = Restraunt.objects.all()
@@ -472,12 +480,13 @@ class DiscountCouponAPI(APIView):
     def get(self, request, format=None):
         user = request.user
         applied_coupon = AppliedCoupon.objects.filter(user=user).all()
+        user_cart = Cart.objects.filter(user=user).first()
         discount_coupon = DiscountCoupon.objects.all()
         
         valid_coupon = []
         for i in discount_coupon:
             use_coupon_count = len(applied_coupon.filter(coupon=i).all())
-            if i.limit_per_user > use_coupon_count:
+            if i.limit_per_user > use_coupon_count and (i.offer_by == None or i.offer_by == user_cart.restraunt):
                 coupon_data = DiscountSouponSerializer(i)
                 valid_coupon.append(coupon_data.data)
 
@@ -509,6 +518,14 @@ class OrderAPI(APIView):
         
         cart = Cart.objects.filter(user=user).filter(restraunt=restraunt).first()
         
+        try:
+            selectedCoupon = request.data.get('selectedCoupon')
+            if selectedCoupon:
+                discount_coupon = DiscountCoupon.objects.filter(id=selectedCoupon).first()
+                applied_coupon = AppliedCoupon.objects.create(user=user,coupon=discount_coupon)
+                applied_coupon.save()
+        except:
+            pass
         
         
         new_order = Order.objects.create(
@@ -567,4 +584,55 @@ class OrderDetailListAPI(ListAPIView):
         return super().get_queryset(*args, **kwargs).filter(
             user=self.request.user
         )
+
+class CustomerSearchesListAPI(ListAPIView):
+    queryset = CustomerSearches.objects.all()
+    serializer_class = CustomerSearchesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+  
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            user=self.request.user
+        )
+
+
+class CustomerSearchesAPI(APIView):
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, format=None):
+        user = request.user
+        restraunt = Restraunt.objects.filter(id=int(request.data.get('restraunt_id'))).first()
+        
+        no_of_old_searches = len(CustomerSearches.objects.filter(user=user).all())
+        already_restraunt_in_search = CustomerSearches.objects.filter(user=user).filter(restraunt=restraunt).first()
+        if no_of_old_searches >= 10:
+            old_search = CustomerSearches.objects.filter(user=user).last()
+            old_search.delete()
+        
+        if already_restraunt_in_search:
+            already_restraunt_in_search.delete()
+      
+        
+        new_search = CustomerSearches.objects.create(
+            user=user,
+            restraunt=restraunt,
+         
+        )
+        
+        new_search.save()
+        
+        
+        return Response({"message":"Recent search created","status":"success"},status=status.HTTP_200_OK)
+                
+class CustomerFavouritesRestrauntListAPI(ListAPIView):
+    queryset = CustomerFavouritesRestraunt.objects.all()
+    serializer_class = CustomerFavouritesRestrauntSerializer
+    permission_classes = [permissions.IsAuthenticated]
+  
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            user=self.request.user
+        )
+            
             

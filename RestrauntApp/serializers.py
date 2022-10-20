@@ -1,7 +1,7 @@
 from dataclasses import field
 from rest_framework import serializers
 from CoreApp.serializers import DeliveryPartnerSerializer
-from RestrauntApp.models import Banner, Cart, CartCustomisedItem, Cuisine, DiscountCoupon, Order, OrderItem, Restraunt,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions,CartItems, RestrauntSection
+from RestrauntApp.models import Banner, Cart, CartCustomisedItem, Cuisine, CustomerFavouritesRestraunt, DiscountCoupon, Order, OrderItem, Restraunt,RestrauntMenu,RestrauntMenuHead,CustomDishHead,CustomisationOptions,CartItems, RestrauntSection,CustomerSearches
 
 
 class RestrauntSerializer(serializers.ModelSerializer):
@@ -106,3 +106,14 @@ class OrderSerializer(serializers.ModelSerializer):
         
         
         
+class CustomerSearchesSerializer(serializers.ModelSerializer):
+    restraunt = RestrauntSerializer()
+    class Meta:
+        model = CustomerSearches
+        fields = '__all__'
+        
+class CustomerFavouritesRestrauntSerializer(serializers.ModelSerializer):
+    restraunt = RestrauntSerializer()
+    class Meta:
+        model = CustomerFavouritesRestraunt
+        fields = '__all__'
