@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Login {% endblock %}
+{% block body %}
+    
+<main class="form-signin">
+  <form method="post" action="{% url 'home:login' %}">
+    {% csrf_token %}
+    <img class="mb-4" src="{% static 'assets/img/Yummy-1.png' %}" alt="yummy-logo" width="180" >
+
+
+    <div class="form-floating">
+      <input type="text" class="form-control" required id="username" name="username" placeholder="Username">
+      <label for="username">Username</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" required id="password" name="password" placeholder="Password">
+      <label for="password">Password</label>
+    </div>
+
+    
+    <button class="cta-button" type="submit">Sign in</button>
+    <a href="{% url 'home:restraunt_register' %}" class="partner-registration-link">Become our restraunt partner</a>
+    <br>
+    <a href="" class="partner-registration-link">Become our delivery partner</a>
+   
+  </form>
+</main>
+
+{% endblock %}
+    

@@ -1,3 +1,4 @@
+from audioop import add
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.views import APIView
@@ -20,6 +21,8 @@ class RestrauntsListAPI(ListAPIView):
     filterset_fields = {
         'rating': ['gte', 'lte']
     }
+    def get_queryset(self):
+        return Restraunt.objects.exclude(is_approved=False)   
 
 class RestrauntsSearchListAPI(ListAPIView):
     queryset = Restraunt.objects.all()
@@ -497,7 +500,6 @@ class DiscountCouponAPI(APIView):
         
     
 class OrderAPI(APIView):
-    
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request, format=None):
         user = request.user
@@ -635,4 +637,5 @@ class CustomerFavouritesRestrauntListAPI(ListAPIView):
             user=self.request.user
         )
             
-            
+
+

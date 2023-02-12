@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'RestrauntApp.apps.RestrauntappConfig',
-    'CoreApp.apps.CoreappConfig'
+    'CoreApp.apps.CoreappConfig',
+    'Home.apps.HomeConfig'
 ]
 
 MIDDLEWARE = [

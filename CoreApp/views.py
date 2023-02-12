@@ -162,6 +162,12 @@ class AddressCreateAPIView(APIView):
             address_line_1 = data['address_line_1']
         except:
             address_line_1 = ""
+            
+        if address_line_1 == "":
+            return Response({
+                        "message":"No Data Found",
+                        "status":"success",
+                    },status=status.HTTP_404_NOT_FOUND)
 
         try:
             address_line_2 = data['address_line_2']
@@ -183,16 +189,34 @@ class AddressCreateAPIView(APIView):
             address_type = data['address_type']
         except:
             address_type = ""
+        
+        if address_type == "":
+            return Response({
+                        "message":"Please select address type",
+                        "status":"success",
+                    },status=status.HTTP_404_NOT_FOUND)
 
         try:
             reciever_name = data['reciever_name']
         except:
             reciever_name = ""
+        
+        if reciever_name == "":
+            return Response({
+                        "message":"Reciever name not found",
+                        "status":"success",
+                    },status=status.HTTP_404_NOT_FOUND)
 
         try:
             reciever_phone_no = data['reciever_phone_no']
         except:
             reciever_phone_no = ""
+            
+        if reciever_name == "":
+            return Response({
+                        "message":"Reciever phone no. not found",
+                        "status":"success",
+                    },status=status.HTTP_404_NOT_FOUND)
 
         try:
             longitude = data['longitude']
@@ -236,4 +260,18 @@ class AddressCreateAPIView(APIView):
                         "data":address_data.data,
                         "status":"success",
                     },status=status.HTTP_200_OK)
+        
+    
+
+class AddressDeleteAPIView(APIView):    
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request, format=None):
+        user = request.user
+        address = AddressDetail.objects.filter(id=int(request.data.get('address_id'))).filter(user=user).first()
+        
+        if not address:
+            return Response({"message":"No address Found","status":"fail"},status=status.HTTP_401_UNAUTHORIZED)
+            
+        address.delete()
+        return Response({"message":"Address Deleted","status":"success"},status=status.HTTP_200_OK)
     

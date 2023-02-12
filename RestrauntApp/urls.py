@@ -29,4 +29,6 @@ urlpatterns = [
     path('recent-search/',views.CustomerSearchesListAPI.as_view()),
     path('favourite-restraunts/',views.CustomerFavouritesRestrauntListAPI.as_view()),
     
+    
+    
 ]

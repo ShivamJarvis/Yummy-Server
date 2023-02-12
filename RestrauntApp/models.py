@@ -34,6 +34,7 @@ RESTRAUNT_SERVES = (
 
 class Restraunt(models.Model):
     name = models.CharField(max_length=100,null=True,blank=True)
+    contact_no = models.CharField(max_length=100,null=True,blank=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="restraunt_category")
     cuisine = models.ManyToManyField(Cuisine,blank=True,related_name="restraunt_cuisine")
     card_image = models.ImageField(null=True,blank=True)
@@ -61,7 +62,7 @@ class Restraunt(models.Model):
     is_exclusive = models.BooleanField(default=False)
     is_new = models.BooleanField(default=True)
     food_type = models.CharField(max_length=40,choices=RESTRAUNT_SERVES,default="Veg")
-    
+    is_approved = models.BooleanField(default=False)
     def __str__(self) -> str:
         return f"{self.id}. {self.name}"
 
